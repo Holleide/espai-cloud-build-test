@@ -44,9 +44,24 @@
                 "auto_generated",
                 "build_error"
             ]
+        },
+        {
+            "id": "f33e0585",
+            "type": "ERROR",
+            "category": "BUILD",
+            "title": "未识别错误",
+            "description": "ERROR: 未找到编译产物，请先编译",
+            "errorPattern": "ERROR: 未找到编译产物，请先编译",
+            "solution": "展开构建日志末尾的报错上下文；若为环境类问题可尝试重新一键配置环境。",
+            "timestamp": 1789936303191,
+            "tags": [
+                "auto_generated",
+                "build_error"
+            ]
         }
     ],
-    "lastUpdated": 1789933713118,
-    "totalBuilds": 32,
-    "failedBuilds": 32
+    "lastUpdated": 1789936303221,
+    "totalBuilds": 34,
+    "successfulBuilds": 1,
+    "failedBuilds": 33
 }
