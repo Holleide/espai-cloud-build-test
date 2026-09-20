@@ -1,13 +1,19 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp_system.h"
+#include "esp_log.h"
+
+static const char *TAG = "hello_world";
 
 void app_main(void)
 {
-    printf("Hello world! from EspAiStudio cloud build\n");
-    fflush(stdout);
+    ESP_LOGI(TAG, "ESP-IDF Hello World!");
+    ESP_LOGI(TAG, "编译环境测试通过！");
+    ESP_LOGI(TAG, "Free tick port: %lu", (unsigned long)xPortGetCoreID());
+
+    int count = 0;
     while (1) {
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "count: %d", count++);
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
