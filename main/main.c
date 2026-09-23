@@ -1,12 +1,3 @@
-#include "esp_log.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-
-static const char *TAG = "main";
-
-void app_main(void) {
-    ESP_LOGI(TAG, "Empty project started");
-    while (1) {
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-}
+task_setup(ADC_TASK, 500);      // ADC sampling every 1s  
+task_setup(OLED_TASK, 3000);    // OLED display refresh every 3s
+task_setup(WIFI_UPLOAD, 60000); // WiFi upload every 60s (background)
