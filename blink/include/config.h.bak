@@ -1,0 +1,14 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+// Blink interval in milliseconds
+#define BLINK_INTERVAL_MS 1000
+
+// LED GPIO pin (ESP32-C3 DevKit V1: GPIO5)
+#define LED_PIN 5
+
+// Current limiting resistor value for external LED connection (ohms)
+// For ~22mA at 5V supply with standard blue LED
+#define LED_RESISTOR_39OMEGA
+
+#endif // CONFIG_H
