@@ -1,12 +1,34 @@
-#include "esp_log.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+/**
+ * @file main.c
+ * @brief 程序入口点
+ * 
+ * 初始化所有模块并启动系统循环
+ */
 
-static const char *TAG = "main";
+#include "led/led.h"
+#include "button/button.h"
+#include "uart_log/uart_log.h"
 
+#define LED_PIN 5
+#define BUTTON_PIN 4
+#define UART_BAUDRATE 115200
+
+/**
+ * @brief 应用程序主函数（IDF Entry Point）
+ */
 void app_main(void) {
-    ESP_LOGI(TAG, "Empty project started");
-    while (1) {
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
+    // 初始化 UART 日志模块
+    uart_log_init(UART_BAUDRATE, LED_PIN, BUTTON_PIN);
+    
+    ESP_LOGI("SYSTEM", "=== ESP32 Demo System Started ===");
+    
+    // 初始化 LED（GPIO5）
+    led_init();
+    ESP_LOGI("LED", "LED initialized on GPIO%d", LED_PIN);
+    
+    // 初始化按钮（GPIO4，高电平有效）
+    button_init(BUTTON_PIN, true);
+    ESP_LOGI("BUTTON", "Button initialized on GPIO%d (active-high)", BUTTON_PIN);
+    
+    ESP_LOGI("SYSTEM", "=== All modules initialized ===");
 }
