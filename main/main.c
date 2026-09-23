@@ -1,4 +1,12 @@
-# ESP-IDF
+#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
-ESP-IDF is a project for embedded software development. It aims at providing the 
-most flexible and efficient development platform for the ESP32 SoC family.
+static const char *TAG = "main";
+
+void app_main(void) {
+    ESP_LOGI(TAG, "Empty project started");
+    while (1) {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
