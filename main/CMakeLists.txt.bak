@@ -1,1 +1,4 @@
-idf_component_register(SRCS "main.cpp" INCLUDE_DIRS ".")
+idf_component_register(SRCS "main.c" INCLUDE_DIRS ".")
+
+# 如果需要外部库，加 REQUIRES: espressif/lvgl
+# PRIV_REQUIRES: esp32
