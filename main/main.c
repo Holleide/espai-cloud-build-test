@@ -1,10 +1,4 @@
-esp_demo_wifi_freertos/
-├── CMakeLists.txt              # Build configuration (passing!)
-├── main.c                      # Entry point - init sequence
-└── components/
-    ├── wifi_client/            # WiFi network task with DNS lookup
-    │   └── CMakeLists.txt      # Component manifest
-    ├── display/                # OLED SSD1306 driver + freefont rendering
-    │   └── CMakeLists.txt      
-    └── sensor_sim/             # Simulated I2C sensors for demo
-        └── CMakeLists.txt
+# Top-level CMakeLists.txt for ESP32-C3 Blink Project
+cmake_minimum_required(VERSION 3.16)
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+project(blink)
