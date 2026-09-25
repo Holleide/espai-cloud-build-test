@@ -1,6 +1,2 @@
-codetest/
-├── CMakeLists.txt          # 主工程配置
-├── README.md               # 说明文档
-└── main/
-    ├── codetest.c           # GPIO LED 闪烁实现
-    └── codetest.h           # 接口声明（可选）
+[985/997] Building C object esp-idf/spiffs/CMakeFiles/__idf_spiffs.dir/esp_spiffs.c.obj[K
+2026-09-25T09:39:40.5000892Z ninja: build stopped: subcommand failed.
