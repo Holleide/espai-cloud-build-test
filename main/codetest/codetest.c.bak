@@ -1,0 +1,84 @@
+// File: main/codetest/codetest.c
+// codetest 模块实现：GPIO2 上的 LED 周期翻转
+
+#include <string.h>
+
+#include "codetest.h"
+
+#include "driver/gpio.h"
+#include "esp_err.h"
+#include "esp_log.h"
+
+// ESP-IDF v6 起驱动头文件不再间接引入 FreeRTOS 头，需显式包含
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
+static const char *TAG = "codetest";
+
+static bool s_led_state = false;  // LED 当前逻辑状态（true = 点亮）
+static bool s_inited = false;     // 初始化标志，防止未初始化就调用 loop
+
+esp_err_t codetest_init(void)
+{
+    // 允许重复调用：第二次直接返回成功，避免重复配置引脚
+    if (s_inited) {
+        ESP_LOGW(TAG, "模块已初始化，忽略重复调用");
+        return ESP_OK;
+    }
+
+    gpio_config_t io_conf = {
+        .pin_bit_mask = (1ULL << CODETEST_LED_GPIO_NUM), // 仅操作 LED 所在引脚
+        .mode = GPIO_MODE_OUTPUT,                        // 推挽输出
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE,                  // 不使用中断
+    };
+
+    esp_err_t err = gpio_config(&io_conf);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "GPIO%d 配置失败: %s", CODETEST_LED_GPIO_NUM, esp_err_to_name(err));
+        return err;
+    }
+
+    // 上电默认熄灭，保证状态变量与实际电平一致
+    s_led_state = false;
+    err = gpio_set_level(CODETEST_LED_GPIO_NUM, s_led_state ? 1 : 0);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "GPIO%d 初始电平设置失败: %s", CODETEST_LED_GPIO_NUM, esp_err_to_name(err));
+        return err;
+    }
+
+    s_inited = true;
+    ESP_LOGI(TAG, "初始化完成，LED 引脚 = GPIO%d，周期 = %d ms",
+             CODETEST_LED_GPIO_NUM, CODETEST_BLINK_INTERVAL_MS);
+    return ESP_OK;
+}
+
+void codetest_loop(void)
+{
+    if (!s_inited) {
+        // 防御：未初始化时不操作引脚，避免读到未配置的外设寄存器
+        ESP_LOGE(TAG, "codetest_loop 在初始化之前被调用，已跳过本次执行");
+        return;
+    }
+
+    s_led_state = !s_led_state;
+
+    esp_err_t err = gpio_set_level(CODETEST_LED_GPIO_NUM, s_led_state ? 1 : 0);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "翻转 GPIO%d 失败: %s", CODETEST_LED_GPIO_NUM, esp_err_to_name(err));
+        // 翻转失败时回滚状态，保持软件状态与硬件一致
+        s_led_state = !s_led_state;
+        return;
+    }
+
+    ESP_LOGD(TAG, "LED -> %s", s_led_state ? "ON" : "OFF");
+
+    // 让出 CPU，避免看门狗超时（IDLE 任务需要调度机会）
+    vTaskDelay(pdMS_TO_TICKS(CODETEST_BLINK_INTERVAL_MS));
+}
+
+bool codetest_get_state(void)
+{
+    return s_led_state;
+}
