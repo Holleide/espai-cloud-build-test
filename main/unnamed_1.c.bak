@@ -1,6 +1,6 @@
-main/
-├── CMakeLists.txt          # SRCS: main.c + codetest/codetest.c
-├── main.c                  # app_main → codetest_init → while(1) codetest_loop
-└── codetest/
-    ├── codetest.h          # 接口与宏（GPIO2 / 500ms）
-    └── codetest.c          # GPIO 驱动实现
+codetest/
+├── CMakeLists.txt          # 主工程配置
+├── README.md               # 说明文档
+└── main/
+    ├── codetest.c           # GPIO LED 闪烁实现
+    └── codetest.h           # 接口声明（可选）
