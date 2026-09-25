@@ -1,26 +1,5 @@
 {
-    "projectName": "failfix",
-    "projectTarget": "esp32c3",
-    "idfVersion": "v6.0.1",
-    "entries": [
-        {
-            "id": "1790224899422",
-            "type": "PATTERN",
-            "category": "BUILD",
-            "title": "云端编译成功：failfix",
-            "description": "工程「failfix」在 esp32c3 / v6.0.1 下云端编译通过。源文件 3 个：CMakeLists.txt, main/CMakeLists.txt, main/hello_world_main.c",
-            "relatedFiles": [
-                "CMakeLists.txt",
-                "main/CMakeLists.txt",
-                "main/hello_world_main.c"
-            ],
-            "timestamp": 1790224899422,
-            "tags": [
-                "build_success",
-                "cloud",
-                "auto_generated"
-            ]
-        }
-    ],
-    "lastUpdated": 1790224899472
+    "lastUpdated": 1790140764575,
+    "totalBuilds": 1,
+    "failedBuilds": 1
 }
