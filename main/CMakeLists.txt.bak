@@ -1,4 +1,5 @@
-idf_component_register(SRCS "main.c" INCLUDE_DIRS ".")
-
-# 如果需要外部库，加 REQUIRES: espressif/lvgl
-# PRIV_REQUIRES: esp32
+idf_component_register(SRCS "codetest/codetest.c"
+                       "main.c"
+                       "unnamed_1.c"
+                       PRIV_REQUIRES esp_driver_gpio
+                       INCLUDE_DIRS "." "codetest")
