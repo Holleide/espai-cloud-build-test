@@ -1,0 +1,124 @@
+menu "BLE信标基站配置"
+
+    menu "iBeacon参数配置"
+        config IBEACON_MAJOR
+            int "默认Major值"
+            default 1
+            range 1 65535
+            help
+                iBeacon的Major值，用于区分信标组。
+
+        config IBEACON_MINOR
+            int "默认Minor值"
+            default 1
+            range 1 65535
+            help
+                iBeacon的Minor值，用于区分单个信标。
+
+        config IBEACON_TX_POWER
+            int "TX Power校准值 (dBm)"
+            default -59
+            range -100 0
+            help
+                1米距离处的RSSI校准值。
+                典型值: -59 dBm
+
+        config IBEACON_ADV_INTERVAL_MS
+            int "广播间隔 (毫秒)"
+            default 100
+            range 20 10240
+            help
+                BLE广播间隔，单位毫秒。
+                较小的间隔提供更好的定位精度，但功耗更高。
+
+        config IBEACON_POSITION_X
+            int "信标X坐标 (厘米)"
+            default 0
+            help
+                信标安装位置的X坐标，用于高精度定位。
+
+        config IBEACON_POSITION_Y
+            int "信标Y坐标 (厘米)"
+            default 0
+            help
+                信标安装位置的Y坐标，用于高精度定位。
+    endmenu
+
+    menu "LED指示配置"
+        config BEACON_LED_GPIO
+            int "LED GPIO引脚"
+            default 2
+            help
+                状态指示LED连接的GPIO引脚。
+
+        config BEACON_LED_BLINK_MS
+            int "LED闪烁周期 (毫秒)"
+            default 500
+            range 100 5000
+            help
+                LED闪烁周期，单位毫秒。
+    endmenu
+
+    menu "电源管理配置"
+        config BEACON_LOW_POWER_MODE
+            bool "启用低功耗模式"
+            default y
+            help
+                启用动态调频低功耗模式，降低功耗。
+
+        config BEACON_CPU_MIN_FREQ_MHZ
+            int "最低CPU频率 (MHz)"
+            default 40
+            range 10 240
+            depends on BEACON_LOW_POWER_MODE
+            help
+                低功耗模式下的最低CPU频率。
+
+        config BEACON_CPU_MAX_FREQ_MHZ
+            int "最高CPU频率 (MHz)"
+            default 240
+            range 40 240
+            depends on BEACON_LOW_POWER_MODE
+            help
+                高负载时的最高CPU频率。
+    endmenu
+
+    menu "NVS存储配置"
+        config NVS_NAMESPACE
+            string "NVS命名空间"
+            default "beacon_cfg"
+            help
+                NVS存储使用的命名空间。
+
+        config NVS_KEY_MAJOR
+            string "Major值存储键"
+            default "major"
+            help
+                Major值在NVS中的存储键名。
+
+        config NVS_KEY_MINOR
+            string "Minor值存储键"
+            default "minor"
+            help
+                Minor值在NVS中的存储键名。
+
+        config NVS_KEY_TX_POWER
+            string "TX Power存储键"
+            default "tx_power"
+            help
+                TX Power在NVS中的存储键名。
+
+        config NVS_KEY_POSITION_X
+            string "位置X坐标存储键"
+            default "pos_x"
+            help
+                位置X坐标在NVS中的存储键名。
+
+        config NVS_KEY_POSITION_Y
+            string "位置Y坐标存储键"
+            default "pos_y"
+            help
+                位置Y坐标在NVS中的存储键名。
+    endmenu
+
+endmenu
