@@ -85,22 +85,17 @@ void loop() {
     digitalWrite(HEARTBEAT_LED, LOW);
   }
 
-  // ===== BLE 接收数据 =====
-  if (bleConnected && bleMouse.available()) {
-    while (bleMouse.available()) {
-      char c = bleMouse.read();
-      if (c == '\n' || c == '\r') {
-        if (rxBuf.length() > 0) {
-          parseCmd(rxBuf);
-          rxBuf = "";
-        }
-      } else {
-        rxBuf += c;
-      }
-    }
-  }
+  // ===== BLE 接收数据（原厂 T-vK BleMouse v0.3.1 不支持）=====
+  // 说明：T-vK/ESP32-BLE-Mouse 的 BleMouse 类是【纯 HID 输出设备】，
+  // 头文件里只有 begin/end/isConnected/move/click/press/release/scroll 等，
+  // 并没有 available()/read() 这类“接收主机回传文本”的流式接口——
+  // 原 .ino 里的 bleMouse.available()/read() 依赖的是某个改过库的分支（未证实来源），
+  // 用官方库编译会报 “'class BleMouse' has no member named 'available'”。
+  // 因此本固件的指令注入统一走下面的【USB 串口通道】（原 sketch 已实现的备用通道），
+  // 设备对手机/PC 仍表现为标准 BLE HID 鼠标，只是指令由串口下发。
+  // BLE 侧仅用于输出 HID 报告，不接收命令。
 
-  // ===== 串口接收数据（OTG备用通道）=====
+  // ===== 串口接收数据（指令注入通道）=====
   while (Serial.available()) {
     char c = Serial.read();
     if (c == '\n' || c == '\r') {
