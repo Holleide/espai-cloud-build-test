@@ -1,0 +1,42 @@
+# 由 EspAiStudio 生成的 PlatformIO 云端编译工作流
+# 触发：App 经 POST /actions/workflows/<本文件名>/dispatches 手动触发（文件名以 App 设置页『工作流文件名』为准）
+name: EspAiStudio PlatformIO Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      board:
+        description: 'PlatformIO board (informational; actual board is read from platformio.ini)'
+        required: false
+        default: 'esp32-c3-devkitm-1'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PlatformIO Core
+        run: pip install -U platformio
+
+      - name: Build firmware (pio run)
+        run: pio run
+
+      - name: Collect flashable binaries
+        run: |
+          mkdir -p _fwout
+          find .pio/build -maxdepth 2 -name '*.bin' -exec cp -v {} _fwout/ \; || true
+          ls -la _fwout
+
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: _fwout/*.bin
+          if-no-files-found: error
