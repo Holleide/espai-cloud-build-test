@@ -1,15 +1,17 @@
+/*
+ * STM32F103C8 BluePill (Arduino core) 点灯示例
+ * 板载 LED 接在 PC13，每 300 ms 翻转一次。
+ */
+
 #include <Arduino.h>
 
-// Onboard LED is on pin 13 (PC13), active low
-const int ledPin = 13;
-
 void setup() {
-    pinMode(ledPin, OUTPUT);
+    pinMode(LED_BUILTIN, OUTPUT); // PC13：板载 LED，输出模式
 }
 
 void loop() {
-    digitalWrite(ledPin, LOW);   // turn ON
-    delay(500);
-    digitalWrite(ledPin, HIGH);  // turn OFF
-    delay(500);
+    digitalWrite(LED_BUILTIN, HIGH); // 点亮
+    delay(300);                      // 保持 300 ms
+    digitalWrite(LED_BUILTIN, LOW);  // 熄灭
+    delay(300);                      // 保持 300 ms
 }
