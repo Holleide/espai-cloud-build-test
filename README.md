@@ -1,9 +1,9 @@
-# hh
+# stm32_f103
 
-由 ESP-AI Studio 生成的 PlatformIO 工程（平台 teensy · 板卡 teensy40 · 框架 Arduino）。
+由 ESP-AI Studio 生成的 PlatformIO 工程（平台 ststm32 · 板卡 genericSTM32F103C8 · 框架 Arduino）。
 
 ## 目录结构
-- `platformio.ini` — 工程与板卡定义（platform=teensy, board=teensy40, framework=arduino）
+- `platformio.ini` — 工程与板卡定义（platform=ststm32, board=genericSTM32F103C8, framework=arduino）
 - `src/` — 源码入口
 - `lib/` — 工程私有库
 - `include/` — 公共头文件
