@@ -1,17 +1,15 @@
+// 由 ESP-AI Studio 生成的 PlatformIO 工程
+// 本地编辑，云端编译（GitHub Actions：pio run）
 #include <Arduino.h>
 
-// Onboard LED is on pin PC13, active low (BluePill STM32F103C8T6).
-// Use the core pin-name constant PC13 so it maps unambiguously to port C pin 13
-// (raw digital "13" is not guaranteed to be the LED on the generic stm32duino variant).
-const int ledPin = PC13;
+/* 板载 LED 引脚：STM32F103C8 BluePill 的 onboard LED 位于 PC13 */
+const uint8_t ledPin = PC13;
 
 void setup() {
     pinMode(ledPin, OUTPUT);
 }
 
 void loop() {
-    digitalWrite(ledPin, LOW);   // turn ON
-    delay(500);
-    digitalWrite(ledPin, HIGH);  // turn OFF
-    delay(500);
+    digitalWrite(ledPin, !digitalRead(ledPin)); /* 翻转当前电平 */
+    delay(300);                                  /* 每 300 ms 翻转一次 */
 }
