@@ -11,5 +11,5 @@ void setup() {
 
 void loop() {
     digitalWrite(ledPin, !digitalRead(ledPin)); /* 翻转当前电平 */
-    delay(300);                                  /* 每 300 ms 翻转一次 */
+    delay(100);                                  /* 每 300 ms 翻转一次 */
 }
