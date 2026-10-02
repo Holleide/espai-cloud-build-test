@@ -4,25 +4,36 @@
 #include "freertos/task.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 
-static const char *TAG = "BlinkApp";
-#define BLINK_GPIO 2
+static const char *TAG = "HeartbeatLED";
+#define HEARTBEAT_GPIO 2
 
 /**
- * @brief LED 闪烁任务函数
- * 使用 FreeRTOS 任务实现周期性 GPIO 电平翻转
+ * @brief 心跳 LED 任务函数
+ * 每 500ms 翻转 GPIO2 电平，每 2 秒打印一次运行时间
  */
-static void blinky_task(void *pvParameters) {
-    ESP_LOGI(TAG, "Blinky task started on GPIO %d", BLINK_GPIO);
+static void heartbeat_task(void *pvParameters) {
+    ESP_LOGI(TAG, "Heartbeat task started on GPIO %d", HEARTBEAT_GPIO);
+
+    uint64_t start_time = esp_timer_get_time();
+    uint64_t last_print_time = start_time;
+    const uint64_t PRINT_INTERVAL_US = 2000000ULL; // 2 seconds in microseconds
 
     while (1) {
-        // 设置高电平点亮/熄灭 LED（取决于电路是高电平点亮还是低电平点亮）
-        gpio_set_level(BLINK_GPIO, 1);
-        // vTaskDelay 使用 pdMS_TO_TICKS 将毫秒转换为 Tick 数
-        vTaskDelay(pdMS_TO_TICKS(500));
+        // 每 500ms 翻转一次 GPIO2 电平
+        gpio_set_level(HEARTBEAT_GPIO, !gpio_get_level(HEARTBEAT_GPIO));
 
-        // 设置低电平
-        gpio_set_level(BLINK_GPIO, 0);
+        uint64_t current_time = esp_timer_get_time();
+        
+        // 每 2 秒打印一次运行时间（以秒为单位）
+        if (current_time - last_print_time >= PRINT_INTERVAL_US) {
+            uint32_t uptime_seconds = (uint32_t)((current_time - start_time) / 1000000ULL);
+            ESP_LOGI(TAG, "Uptime: %u seconds", uptime_seconds);
+            last_print_time = current_time;
+        }
+
+        // 使用 FreeRTOS 任务延迟等待 500ms
         vTaskDelay(pdMS_TO_TICKS(500));
     }
 }
@@ -31,26 +42,19 @@ void app_main(void) {
     ESP_LOGI(TAG, "Initializing hardware...");
 
     /* 1. 初始化 GPIO 引脚 */
-    // 重置引脚，清除之前的配置（如输入、上拉等）
-    gpio_reset_pin(BLINK_GPIO);
+    gpio_reset_pin(HEARTBEAT_GPIO);
     // 设置为输出模式
-    gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+    gpio_set_direction(HEARTBEAT_GPIO, GPIO_MODE_OUTPUT);
 
     /* 2. 创建 FreeRTOS 任务 */
-    // 参数说明：函数指针, 任务名, 栈大小, 参数, 优先级, 句柄, 绑定核心（NULL 为自动）
     xTaskCreate(
-        blinky_task,           // 任务入口函数
-        "blinky_task",         // 任务描述名称
-        2048,                  // 分配的栈空间 (Bytes)
-        NULL,                  // 传递给任务的参数
-        5,                     // 任务优先级（数字越大优先级越高）
-        NULL                   // 任务句柄（此处不需要用到，设为 NULL）
+        heartbeat_task,           // 任务入口函数
+        "heartbeat_task",         // 任务描述名称
+        2048,                     // 分配的栈空间 (Bytes)
+        NULL,                     // 传递给任务的参数
+        5,                        // 任务优先级（数字越大优先级越高）
+        NULL                      // 任务句柄（此处不需要用到，设为 NULL）
     );
 
-    ESP_LOGI(TAG, "Task created successfully. Entering idle loop.");
-
-    /* 3. 主线程进入空闲循环 */
-    while (1) {
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
+    ESP_LOGI(TAG, "Task created successfully. Starting app.");
 }
