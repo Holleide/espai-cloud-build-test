@@ -1,4 +1,16 @@
-/* File: main/main.c */
+/*
+ * main/main.c - Heartbeat LED 心跳LED任务实现
+ * 
+ * 功能描述：
+ *   1. GPIO2 每500ms翻转电平，作为硬件心跳指示
+ *   2. 每2秒打印一次系统运行时间（以秒为单位）
+ * 
+ * 使用 ESP-IDF v6 API:
+ *   - driver/gpio.h: GPIO 引脚控制
+ *   - esp_log.h: 日志输出
+ *   - esp_timer.h: 高精度计时器
+ *   - FreeRTOS: 任务创建和延迟
+ */
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
