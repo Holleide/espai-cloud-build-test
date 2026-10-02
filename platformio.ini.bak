@@ -1,8 +1,0 @@
-; 由 ESP-AI Studio 生成的 PlatformIO 工程
-; 本地编辑，云端编译（GitHub Actions：ubuntu + pio run）
-
-[env:teensy40]
-platform = teensy
-board = teensy40
-framework = arduino
-monitor_speed = 115200
