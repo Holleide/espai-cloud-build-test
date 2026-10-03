@@ -1,17 +1,48 @@
 /*
- * STM32F103C8 BluePill (Arduino core) 点灯示例
- * 板载 LED 接在 PC13，每 300 ms 翻转一次。
+ * @file main.cpp - STM32F103C8 LED Blink Example (PC13)
+ */
+
+/*
+ * @file main.cpp - STM32F103C8 LED Blink Example (PC13)
  */
 
 #include <Arduino.h>
 
+/**
+ * @brief PC13 → GPIOC^13 → Arduino-LED-BUILTIN（STM32F103C8 板载）
+ */
+const int ledPin = 13;
+
 void setup() {
-    pinMode(LED_BUILTIN, OUTPUT); // PC13：板载 LED，输出模式
+    // 初始化串口调试输出（115200 bps，8N1）
+    Serial.begin(115200);
+    while (!Serial) {
+        ; // 等待串口连接（仅用于调试）
+    }
+    Serial.println("STM32F103C8 LED Blink - PC13");
+
+    // Arduino core: pinMode 自动使能 GPIO 时钟并配置为输出
+    pinMode(ledPin, OUTPUT);
+
+    // 初始状态：LED 关闭（LOW）
+    digitalWrite(ledPin, LOW);
+
+    Serial.println("Setup complete - LED will blink (approx. 500ms period)");
 }
 
 void loop() {
-    digitalWrite(LED_BUILTIN, HIGH); // 点亮
-    delay(300);                      // 保持 300 ms
-    digitalWrite(LED_BUILTIN, LOW);  // 熄灭
-    delay(300);                      // 保持 300 ms
+    /**
+     * @brief 使用 delay() 实现 LED 闪烁
+     * Arduino core: delay() 内部通过定时器中断翻转 LED_BUILTIN 引脚电平，
+     *              无需用户手动操作 GPIO。对于 PC13（LED_BUILTIN），
+     *              delay(500) 会翻转一次，实现约 500ms 周期闪烁。
+     */
+    digitalWrite(ledPin, HIGH);   // LED ON
+    delay(500);                   // 等待 500ms（内部翻转）
+    digitalWrite(ledPin, LOW);    // LED OFF
+    delay(500);                   // 等待 500ms（内部翻转回初始状态）
+}
+
+void loop() {
+    // 主循环空转，避免阻塞定时器
 }
