@@ -1,4 +1,4 @@
-# stm32_f103
+# ___
 
 由 ESP-AI Studio 生成的 PlatformIO 工程（平台 ststm32 · 板卡 genericSTM32F103C8 · 框架 Arduino）。
 
