@@ -1,25 +1,31 @@
 #include <Arduino.h> // 引入 Arduino 标准库
 
-// 定义板载 LED 引脚，对于 Arduino Uno 默认是 13 号引脚 (LED_BUILTIN)
-const int ledPin = LED_BUILTIN; // 使用宏定义确保跨平台兼容性
+// 定义板载 LED 引脚
+const int ledPin = LED_BUILTIN;
+
+// --- 非阻塞状态机变量 ---
+unsigned long previousMillis = 0; // 用于存储上一次执行时间
+const long interval = 1000;     // 定时间隔 (1000ms)
 
 /**
  * @brief 初始化函数，在程序启动时只执行一次。
  */
 void setup() {
-    // 配置 LED 引脚为输出模式
     pinMode(ledPin, OUTPUT); 
 }
 
 /**
- * @brief 主循环，无限重复执行。
+ * @brief 主循环，无限重复执行。采用非阻塞模式控制 LED 闪烁。
  */
 void loop() {
-    // 打开 LED (设置为 HIGH)
-    digitalWrite(ledPin, HIGH);
-    delay(1000); // 等待 1 秒
+    unsigned long currentMillis = millis(); // 获取当前时间
 
-    // 关闭 LED (设置为 LOW)
-    digitalWrite(ledPin, LOW);
-    delay(1000); // 等待 1 秒
+    // 判断是否达到设定的定时间隔 (1000ms)
+    if (currentMillis - previousMillis >= interval) {
+        // 更新上一次执行的时间戳
+        previousMillis = currentMillis; 
+
+        // 执行 LED 的切换逻辑（状态机核心）
+        digitalWrite(ledPin, !digitalRead(ledPin)); // 读取当前状态并取反
+    }
 }
