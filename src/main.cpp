@@ -1,22 +1,25 @@
-#include <Arduino.h>
+#include <Arduino.h> // 引入 Arduino 标准库
 
-// 通用 Arduino 骨架：各板卡板载 LED 引脚不同。若该板核心未定义 LED_BUILTIN，
-// 请把下面的 2 改成你板子原理图/丝印标注的实际 LED 引脚号。
-#ifndef LED_BUILTIN
-#define LED_BUILTIN 2
-#endif
+// 定义板载 LED 引脚，对于 Arduino Uno 默认是 13 号引脚 (LED_BUILTIN)
+const int ledPin = LED_BUILTIN; // 使用宏定义确保跨平台兼容性
 
-// 说明：本骨架【故意不调用 Serial】，以保证任意厂商 Arduino 核心都能开箱 `pio run`
-// 通过链接——AVR/ESP32/RP2040 的 Serial 是 UART，但 Adafruit nRF52 的 Serial 是
-// USB-CDC(Adafruit_USBD_CDC)，裸 pio run 会报 undefined reference to Serial 而链接失败。
-// 需要串口输出时，请按你板子的官方例程自行加 Serial.begin(...)。
+/**
+ * @brief 初始化函数，在程序启动时只执行一次。
+ */
 void setup() {
-    pinMode(LED_BUILTIN, OUTPUT);
+    // 配置 LED 引脚为输出模式
+    pinMode(ledPin, OUTPUT); 
 }
 
+/**
+ * @brief 主循环，无限重复执行。
+ */
 void loop() {
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(500);
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(500);
+    // 打开 LED (设置为 HIGH)
+    digitalWrite(ledPin, HIGH);
+    delay(1000); // 等待 1 秒
+
+    // 关闭 LED (设置为 LOW)
+    digitalWrite(ledPin, LOW);
+    delay(1000); // 等待 1 秒
 }
