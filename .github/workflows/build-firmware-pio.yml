@@ -8,7 +8,7 @@ on:
       board:
         description: 'PlatformIO board (informational; actual board is read from platformio.ini)'
         required: false
-        default: 'esp32-c3-devkitm-1'
+        default: 'uno'
 
 jobs:
   build:
@@ -28,15 +28,18 @@ jobs:
       - name: Build firmware (pio run)
         run: pio run
 
-      - name: Collect flashable binaries
+      - name: Collect flashable firmware images
         run: |
           mkdir -p _fwout
-          find .pio/build -maxdepth 2 -name '*.bin' -exec cp -v {} _fwout/ \; || true
+          find .pio/build -maxdepth 2 \( -name '*.bin' -o -name '*.hex' -o -name '*.uf2' \) -exec cp -v {} _fwout/ \; || true
           ls -la _fwout
 
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
           name: firmware
-          path: _fwout/*.bin
+          path: |
+            _fwout/*.bin
+            _fwout/*.hex
+            _fwout/*.uf2
           if-no-files-found: error
