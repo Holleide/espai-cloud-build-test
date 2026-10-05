@@ -1,9 +1,9 @@
-# hhh
+# e2e
 
 由 ESP-AI Studio 生成的 ESP-IDF 工程。
 
 ## 目录结构
-- `CMakeLists.txt` — 顶层工程定义（include project.cmake + project(hhh)）
+- `CMakeLists.txt` — 顶层工程定义（include project.cmake + project(e2e)）
 - `main/` — 应用主组件
   - `main/CMakeLists.txt` — idf_component_register 源文件登记
   - `main/*.c` — 源码（app_main 入口）
