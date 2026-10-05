@@ -8,7 +8,7 @@ on:
       board:
         description: 'PlatformIO board (informational; actual board is read from platformio.ini)'
         required: false
-        default: 'esp32-s3-devkitc-1'
+        default: 'esp32s3-devkitc-1'
 
 jobs:
   build:
