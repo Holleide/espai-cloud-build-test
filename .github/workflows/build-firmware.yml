@@ -1,5 +1,5 @@
 # 由 EspAiStudio 生成的 ESP-IDF 云端编译工作流
-# 触发：App 通过 POST /actions/workflows/build-firmware.yml/dispatches 手动触发
+# 触发：App 经 POST /actions/workflows/<本文件名>/dispatches 手动触发（文件名以 App 设置页『工作流文件名』为准）
 name: EspAiStudio Firmware Build
 
 on:
@@ -10,7 +10,7 @@ on:
         required: false
         default: 'esp32s3'
       idf_version:
-        description: 'ESP-IDF version (e.g. v5.3.2 or v5.3 or master)'
+        description: 'ESP-IDF docker-image tag (e.g. v6.0.1, or v5.3, or master)'
         required: false
         default: 'v6.0.1'
 
