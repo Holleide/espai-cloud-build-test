@@ -1,86 +1,80 @@
-/**
- * @file main/main.c
- * @brief Esp32-S3 点灯与按键示例入口文件
- */
-
+// File: main/main.c
+#include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "driver/gpio.h"
 
-// 定义日志标签
+/* 模块标签，用于日志输出 */
 static const char *TAG = "main";
 
-// --- GPIO 引脚定义 ---
-// 假设 LED 连接到 GPIO 45 (根据当前环境描述)
-#define LED_GPIO_NUM    45
-// 假设按键连接到 GPIO 35 (需根据实际硬件配置调整)
-#define BUTTON_GPIO_NUM 35
+/**
+ * @brief GPIO 引脚定义和初始化结构体
+ * 包含所有需要配置的引脚信息。
+ */
+typedef struct {
+    gpio_num_t led_pin;       // LED 输出引脚编号
+    gpio_num_t button_pin;   // 按键输入引脚编号
+} gpio_config_t;
 
 /**
- * @brief 控制LED状态的FreeRTOS任务
- * 使用任务来避免阻塞主循环，实现非阻塞点灯。
- * @param pvParameters 传递给任务的参数
+ * @brief GPIO 配置结构体，用于存放硬件配置。
  */
-void led_task(void *pvParameters)
-{
-    // 初始化LED引脚
-    gpio_reset_pin(LED_GPIO_NUM);
-    gpio_set_direction(LED_GPIO_NUM, GPIO_MODE_OUTPUT);
+static gpio_config_t gpio_cfg;
 
-    ESP_LOGI(TAG, "LED Task started.");
+/**
+ * @brief 任务函数：LED 点灯控制
+ * 使用 FreeRTOS 任务来非阻塞地控制 LED。
+ *
+ * @param pvParameters 任务参数
+ * @return void
+ */
+void led_task(void *pvParameters) {
+    ESP_LOGI(TAG, "LED Control Task started.");
 
+    // 假设我们将 LED 配置为 GPIO 2，按键配置为 GPIO 35 (示例引脚，需根据实际硬件调整)
+    const gpio_num_t led_gpio = GPIO_NUM_2;
+    const gpio_num_t button_gpio = GPIO_NUM_35;
+
+    // 1. 初始化 LED 引脚为输出模式
+    ESP_ERROR_CHECK(gpio_set_direction(led_gpio, GPIO_MODE_OUTPUT));
+    ESP_LOGI(TAG, "LED GPIO %d initialized as output.", led_gpio);
+
+    // 2. 初始化按键引脚为输入模式，并配置上拉/下拉（示例）
+    ESP_ERROR_CHECK(gpio_set_direction(button_gpio, GPIO_MODE_INPUT));
+    ESP_LOGI(TAG, "Button GPIO %d initialized as input.", button_gpio);
+
+    // 3. 配置 LED 输出 (这里使用简单的 digitalWrite，实际项目中应使用 LEDC/PWM)
     while (1) {
-        // 闪烁LED
-        gpio_set_level(LED_GPIO_NUM, 1);
-        vTaskDelay(pdMS_TO_TICKS(500)); // 延时500ms
+        // 模拟点灯效果：开灯 500ms，关灯 500ms
+        gpio_set_level(led_gpio, 1); // 点亮 LED
+        ESP_LOGI(TAG, "LED ON.");
+        vTaskDelay(pdMS_TO_TICKS(500));
 
-        gpio_set_level(LED_GPIO_NUM, 0);
-        vTaskDelay(pdMS_TO_TICKS(500)); // 延时500ms
+        gpio_set_level(led_gpio, 0); // 熄灭 LED
+        ESP_LOGI(TAG, "LED OFF.");
+        vTaskDelay(pdMS_TO_TICKS(500));
     }
 }
 
 /**
- * @brief 读取按键状态的FreeRTOS任务
- * 监控按键输入。
- * @param pvParameters 传递给任务的参数
+ * @brief 应用主入口函数。
+ *
+ * 在 ESP-IDF 框架下，app_main 是程序执行的起点。
+ * 此处负责系统初始化和任务创建。
+ *
+ * @param () 无参数
  */
-void button_task(void *pvParameters)
-{
-    ESP_LOGI(TAG, "Button Task started.");
-    
-    // 初始化按键引脚为输入，并配置上拉/下拉（此处假设使用内部上拉）
-    gpio_reset_pin(BUTTON_GPIO_NUM);
-    gpio_set_direction(BUTTON_GPIO_NUM, GPIO_MODE_INPUT);
-    
-    // 启用内部上拉电阻以简化按键连接 (需要根据实际硬件调整)
-    gpio_pullup_en(BUTTON_GPIO_NUM);
+void app_main(void) {
+    ESP_LOGI(TAG, "Application main started.");
 
+    // 启动 LED 控制任务
+    ESP_ERROR_CHECK(xTaskCreate(led_task, "led_task", 4096, NULL, 5, NULL));
+
+    ESP_LOGI(TAG, "System initialized. Waiting for tasks...");
+
+    // 主循环保持运行，等待其他事件或任务完成
     while (1) {
-        int button_state = gpio_get_level(BUTTON_GPIO_NUM);
-        ESP_LOGI(TAG, "Button state: %d", button_state);
-
-        // 简单的按键去抖/事件处理逻辑
-        if (button_state == 0) { // 按下（低电平）
-            ESP_LOGW(TAG, "Button pressed!");
-            vTaskDelay(pdMS_TO_TICKS(200)); // 去抖
-        }
-        vTaskDelay(pdMS_TO_TICKS(10)); // 轮询间隔
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
-}
-
-/**
- * @brief 主应用程序入口函数
- */
-void app_main(void)
-{
-    ESP_LOGI(TAG, "Application starting up...");
-
-    // 创建LED控制任务
-    xTaskCreate(led_task, "led_task", 4096, NULL, 5, NULL);
-
-    // 创建按键输入任务
-    xTaskCreate(button_task, "button_task", 4096, NULL, 6, NULL);
-
-    ESP_LOGI(TAG, "All tasks created successfully.");
 }
