@@ -4,24 +4,21 @@
 #include "esp_log.h"
 #include "driver/gpio.h"
 
-// 定义日志标签，用于在日志中区分不同模块的输出。
+// --- 配置部分 ---
+// 根据实际硬件配置，请在此处定义正确的GPIO编号。
+// 示例：对于ESP32S3的板载LED可能需要查阅Datasheet或CubeMX配置。
+#define LED_GPIO_NUM (GPIO_NUM_45) // 假设使用GPIO45作为输出
+
 static const char *TAG = "main";
 
 /**
- * @brief LED引脚的GPIO编号。
- *        根据目标芯片和硬件连接，需要根据实际硬件配置来确定。
- *        此处假设使用板载LED，具体引脚需查阅 esp32s3 的引脚定义。
- */
-#define LED_GPIO_NUM GPIO_NUM_45 // 示例：假设点亮的是GPIO45
-
-/**
- * @brief 初始化GPIO的函数。
+ * @brief GPIO初始化函数。
  * @param gpio_num 要配置的GPIO编号。
  * @retval ESP_OK 表示成功，ESP_ERR_GPIO_INIT 表示失败。
  */
 static esp_err_t gpio_init(gpio_num_t gpio_num)
 {
-    // 使用 esp_driver_gpio 相关的API进行GPIO初始化，v6.x 版本推荐使用 driver 组件接口
+    // 使用 esp_driver_gpio 相关的API进行GPIO初始化
     esp_err_t ret = esp_err_gpio_init(gpio_num, GPIO_MODE_OUTPUT, GPIO_DEFAULT);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "GPIO初始化失败，错误码: %d", ret);
@@ -34,7 +31,6 @@ static esp_err_t gpio_init(gpio_num_t gpio_num)
 /**
  * @brief LED控制任务，负责LED的非阻塞闪烁。
  * @param pvTaskWoken 任务被唤醒的事件信息。
- * @retval 无。
  */
 static void led_task(void *pvTaskWoken)
 {
@@ -56,7 +52,7 @@ static void led_task(void *pvTaskWoken)
             ESP_LOGI(TAG, "LED点亮。");
         }
 
-        // 3. 非阻塞延时 (使用 FreeRTOS 提供的延时函数)
+        // 3. 非阻塞延时 (使用 FreeRTOS)
         vTaskDelay(pdMS_TO_TICKS(500));
 
         // 4. 设置LED为低电平 (熄灭)
@@ -67,7 +63,7 @@ static void led_task(void *pvTaskWoken)
             ESP_LOGI(TAG, "LED熄灭。");
         }
 
-        // 5. 非阻塞延时 (使用 FreeRTOS 提供的延时函数)
+        // 5. 非阻塞延时 (使用 FreeRTOS)
         vTaskDelay(pdMS_TO_TICKS(500));
     }
 }
@@ -77,7 +73,7 @@ static void led_task(void *pvTaskWoken)
  */
 void app_main(void)
 {
-    ESP_LOGI(TAG, "Application started, executing LED example.");
+    ESP_LOGI(TAG, "应用启动，开始执行LED示例。");
 
     // 创建一个任务来处理LED的闪烁逻辑
     // 栈大小设置为4096字节，足够容纳FreeRTOS上下文和代码栈。
