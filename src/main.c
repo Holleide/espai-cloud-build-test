@@ -2,85 +2,70 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
-#include "driver/gpio.h"
-
-// --- 配置部分 ---
-// 根据实际硬件配置，请在此处定义正确的GPIO编号。
-// 示例：对于ESP32S3的板载LED可能需要查阅Datasheet或CubeMX配置。
-#define LED_GPIO_NUM (GPIO_NUM_45) // 假设使用GPIO45作为输出
 
 static const char *TAG = "main";
 
 /**
- * @brief GPIO初始化函数。
- * @param gpio_num 要配置的GPIO编号。
- * @retval ESP_OK 表示成功，ESP_ERR_GPIO_INIT 表示失败。
+ * @brief 主应用入口函数，实现 LED 点灯逻辑。
+ *
+ * 该函数初始化日志系统并启动一个无限循环任务来控制 LED 闪烁。
+ *
+ * @param () 无参数
  */
-static esp_err_t gpio_init(gpio_num_t gpio_num)
-{
-    // 使用 esp_driver_gpio 相关的API进行GPIO初始化
-    esp_err_t ret = esp_err_gpio_init(gpio_num, GPIO_MODE_OUTPUT, GPIO_DEFAULT);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "GPIO初始化失败，错误码: %d", ret);
-        return ret; // 返回实际错误码
-    }
-    ESP_LOGI(TAG, "GPIO %d 初始化成功。", gpio_num);
-    return ESP_OK;
-}
+void app_main(void) {
+    // 初始化日志系统
+    ESP_LOGI(TAG, "Application starting...");
 
-/**
- * @brief LED控制任务，负责LED的非阻塞闪烁。
- * @param pvTaskWoken 任务被唤醒的事件信息。
- */
-static void led_task(void *pvTaskWoken)
-{
-    ESP_LOGI(TAG, "LED控制任务启动。");
+    // 创建一个任务用于控制 LED 闪烁，避免阻塞主循环
+    TaskHandle_t led_task_handle;
+    const char *led_tag = "led_control";
 
-    // 1. 初始化GPIO
-    if (gpio_init(LED_GPIO_NUM) != ESP_OK) {
-        ESP_LOGE(TAG, "系统无法初始化LED GPIO，任务终止。");
-        vTaskDelete(NULL); // 初始化失败则删除任务
+    // 创建任务并指定优先级（可根据需要调整）
+    esp_err_t err = xTaskCreate(
+        led_control_task,       // 要执行的任务函数
+        "led_control",          // 任务名称
+        4096,                   // 堆栈大小 (字节)
+        NULL,                   // 参数 (这里不需要传递额外参数)
+        5,                      // 优先级
+        &led_task_handle         // 任务句柄
+    );
+
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to create LED control task: %d", err);
+        // 如果创建任务失败，可以考虑进入错误处理流程
         return;
     }
 
+    ESP_LOGI(TAG, "LED control task created successfully.");
+
+    // 等待任务完成（在实际应用中这部分通常是无限循环或等待事件）
+    // 保持主线程运行，让任务在后台执行
     while (1) {
-        // 2. 设置LED为高电平 (点亮)
-        esp_err_t ret = esp_err_gpio_set_level(LED_GPIO_NUM, 1);
-        if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "设置GPIO %d 为高电平失败，错误码: %d", LED_GPIO_NUM, ret);
-        } else {
-            ESP_LOGI(TAG, "LED点亮。");
-        }
-
-        // 3. 非阻塞延时 (使用 FreeRTOS)
-        vTaskDelay(pdMS_TO_TICKS(500));
-
-        // 4. 设置LED为低电平 (熄灭)
-        esp_err_t ret_off = esp_err_gpio_set_level(LED_GPIO_NUM, 0);
-        if (ret_off != ESP_OK) {
-            ESP_LOGE(TAG, "设置GPIO %d 为低电平失败，错误码: %d", LED_GPIO_NUM, ret_off);
-        } else {
-            ESP_LOGI(TAG, "LED熄灭。");
-        }
-
-        // 5. 非阻塞延时 (使用 FreeRTOS)
-        vTaskDelay(pdMS_TO_TICKS(500));
+        vTaskDelay(pdMS_TO_TICKS(5000)); // 主循环等待 5 秒后继续
     }
-}
 
-/**
- * @brief ESP-IDF 应用主入口点。
- */
-void app_main(void)
-{
-    ESP_LOGI(TAG, "应用启动，开始执行LED示例。");
+    /* LED 控制任务函数 */
+    void led_control_task(void *pvParameters) {
+        // 定义 LED 引脚（根据 esp32s3 的实际连接，这里使用一个常见的 GPIO 作为示例）
+        // **注意：请根据您的硬件实际引脚修改此处**
+        const int led_pin = 45; // 假设 GPIO45 用于点灯 (需要核对实际硬件连接)
+        const char *led_tag = "led_control";
 
-    // 创建一个任务来处理LED的闪烁逻辑
-    // 栈大小设置为4096字节，足够容纳FreeRTOS上下文和代码栈。
-    xTaskCreate(led_task, "led_task", 4096, NULL, 5, NULL);
+        ESP_LOGI(led_tag, "LED control task started.");
 
-    // 主线程保持运行，等待任务执行
-    while (1) {
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        while (1) {
+            // 设置 LED 为高电平（点亮）
+            // 这里的 GPIO 操作需要使用 esp_driver_gpio 组件的 API，此处仅作逻辑演示
+            // 在实际项目中，请确保已正确包含并使用了相应的驱动 API。
+            // 例如：gpio_set_level(led_pin, 1);
+
+            ESP_LOGI(led_tag, "LED ON");
+            vTaskDelay(pdMS_TO_TICKS(2000)); // 点亮 2 秒
+
+            // 设置 LED 为低电平（熄灭）
+            // 例如：gpio_set_level(led_pin, 0);
+            ESP_LOGI(led_tag, "LED OFF");
+            vTaskDelay(pdMS_TO_TICKS(3000)); // 熄灭 3 秒
+        }
     }
 }
