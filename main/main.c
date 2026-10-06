@@ -31,19 +31,27 @@ static void vLedFlashTask(void *pvParameters) {
     }
 }
 
-/* 按键消抖状态机实现 */
-static void button_debounce_state_machine(uint8_t key_pin, bool debounce_enabled) {
-    static uint32_t last_read_time = 0;
-    static int debounce_count = 0;
-    const int debounce_interval_ms = 15;  /* 消抖间隔（毫秒） */
+/* 按键消抖状态机实现（非阻塞版） */
+static bool button_debounce_state_machine(uint8_t key_pin, bool debounce_enabled) {
+    static uint32_t last_valid_time = 0;
+    static int last_button_state = -1;
+    const int debounce_interval_ms = 15;
 
     ESP_LOGI(TAG, "Button debounce state machine initialized");
 
     while (true) {
         uint32_t current_time = esp_timer_get_time();
-        uint32_t elapsed_ms = (current_time - last_read_time) / 1000;  /* 转换为毫秒 */
+        uint32_t elapsed_ms = (current_time - last_valid_time) / 1000;
 
-        int button_state;
-        gpio_get_level(key_pin);
+        int button_state = gpio_level_get(key_pin);
+
+        /* 消抖：需要间隔 debounce_interval_ms 毫秒后再次检测到相同电平才算有效 */
+        if (elapsed_ms >= debounce_interval_ms && last_button_state != -1) {
+            ESP_LOGD(TAG, "Button state changed: %s", button_state ? "HIGH" : "LOW");
+            /* 消抖完成，记录有效状态并重置计时器 */
+            last_valid_time = current_time;
+        }
+
+        return debounce_enabled && (button_state != last_button_state);
     }
 }
