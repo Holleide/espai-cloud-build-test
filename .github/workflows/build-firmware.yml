@@ -8,7 +8,7 @@ on:
       target:
         description: 'ESP-IDF target chip'
         required: false
-        default: 'esp32'
+        default: 'esp32s3'
       idf_version:
         description: 'ESP-IDF docker-image tag (e.g. v6.0.1, or v5.3, or master)'
         required: false
