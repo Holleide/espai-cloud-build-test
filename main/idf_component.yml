@@ -2,5 +2,4 @@
 # 需第三方托管组件时在此登记，例：
 # dependencies:
 #   espressif/dht_sensor: ~"^0.1.0"
-version: "1.0"
 dependencies: {}
