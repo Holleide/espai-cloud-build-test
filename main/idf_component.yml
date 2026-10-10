@@ -1,0 +1,5 @@
+# 由 ESP-AI Studio 生成：ESP-IDF managed components 依赖清单
+# 需第三方托管组件时在此登记，例：
+# dependencies:
+#   espressif/dht_sensor: ~"^0.1.0"
+dependencies: {}
